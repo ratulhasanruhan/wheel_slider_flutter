@@ -49,6 +49,8 @@ class WheelSlider extends StatefulWidget {
   final Duration animationDuration;
   final Curve animationType;
 
+  final int bigBarInterval;
+
   WheelSlider({
     Key? key,
     this.horizontalListHeight = 50,
@@ -78,17 +80,18 @@ class WheelSlider extends StatefulWidget {
     this.allowPointerTappable = true,
     this.interval = 1,
     this.enableAnimation = true,
+    this.bigBarInterval = 5,
     this.animationDuration = const Duration(seconds: 1),
     this.animationType = Curves.easeIn,
   })  : assert(perspective <= 0.01),
         selectedNumberStyle = null,
         unSelectedNumberStyle = null,
-        children = barUI(totalCount, horizontal, lineColor, interval ?? 1),
+        children = barUI(totalCount, horizontal, lineColor, interval ?? 1, bigBarInterval),
         currentIndex = null,
         hapticFeedback = hapticFeedbackType.value,
         pointer = customPointer == null
             ? pointerWidget(customPointer, horizontal, pointerHeight,
-                pointerWidth, pointerColor)
+            pointerWidth, pointerColor)
             : null,
         super(key: key);
 
@@ -96,39 +99,39 @@ class WheelSlider extends StatefulWidget {
       double pointerHeight, double pointerWidth, Color pointerColor) {
     return customPointer == null
         ? Container(
-            height: horizontal ? pointerHeight : pointerWidth,
-            width: horizontal ? pointerWidth : pointerHeight,
-            color: pointerColor,
-          )
+      height: horizontal ? pointerHeight : pointerWidth,
+      width: horizontal ? pointerWidth : pointerHeight,
+      color: pointerColor,
+    )
         : null;
   }
 
-  static List<Widget> barUI(totalCount, horizontal, lineColor, num interval) {
+  static List<Widget> barUI(totalCount, horizontal, lineColor, num interval, int bigBarInterval) {
     return List.generate(
       totalCount + 1,
-      (index) => Container(
+          (index) => Container(
         height: horizontal
-            ? multipleOfFive(index * (interval))
-                ? 35.0
-                : 20.0
+            ? multipleOfFive(index * (interval), bigBarInterval)
+            ? 35.0
+            : 20.0
             : 1.5,
         width: horizontal
             ? 1.5
-            : multipleOfFive(index * (interval))
-                ? 35.0
-                : 20.0,
+            : multipleOfFive(index * (interval), bigBarInterval)
+            ? 35.0
+            : 20.0,
         alignment: Alignment.center,
         child: Container(
           height: horizontal
-              ? multipleOfFive(index * (interval))
-                  ? 35.0
-                  : 20.0
+              ? multipleOfFive(index * (interval), bigBarInterval)
+              ? 35.0
+              : 20.0
               : 1.5,
           width: horizontal
               ? 1.5
-              : multipleOfFive(index * (interval))
-                  ? 35.0
-                  : 20.0,
+              : multipleOfFive(index * (interval), bigBarInterval)
+              ? 35.0
+              : 20.0,
           color: lineColor,
           alignment: Alignment.center,
         ),
@@ -167,6 +170,7 @@ class WheelSlider extends StatefulWidget {
     this.scrollPhysics,
     this.allowPointerTappable = true,
     this.interval = 1,
+    this.bigBarInterval = 5,
     this.enableAnimation = true,
     this.animationDuration = const Duration(seconds: 1),
     this.animationType = Curves.easeIn,
@@ -189,13 +193,13 @@ class WheelSlider extends StatefulWidget {
         hapticFeedback = hapticFeedbackType.value,
         pointer = customPointer == null
             ? pointerWidget(customPointer, horizontal, pointerHeight,
-                pointerWidth, pointerColor)
+            pointerWidth, pointerColor)
             : null,
         super(key: key);
 
-  static bool multipleOfFive(num n) {
+  static bool multipleOfFive(num n, int bigBarInterval) {
     while (n > 0) {
-      n = n - 5;
+      n = n - bigBarInterval;
     }
     if (n == 0) {
       return true;
@@ -232,6 +236,7 @@ class WheelSlider extends StatefulWidget {
     this.scrollPhysics,
     this.allowPointerTappable = true,
     this.enableAnimation = true,
+    this.bigBarInterval = 5,
     this.animationDuration = const Duration(seconds: 1),
     this.animationType = Curves.easeIn,
   })  : assert(perspective <= 0.01),
@@ -242,7 +247,7 @@ class WheelSlider extends StatefulWidget {
         hapticFeedback = hapticFeedbackType.value,
         pointer = customPointer == null
             ? pointerWidget(customPointer, horizontal, pointerHeight,
-                pointerWidth, pointerColor)
+            pointerWidth, pointerColor)
             : null,
         interval = 1,
         super(key: key);
@@ -261,7 +266,7 @@ class HapticFeedbackType {
   static const HapticFeedbackType mediumImpact = HapticFeedbackType._('medium');
   static const HapticFeedbackType heavyImpact = HapticFeedbackType._('heavy');
   static const HapticFeedbackType selectionClick =
-      HapticFeedbackType._('selectionClick');
+  HapticFeedbackType._('selectionClick');
   static List<HapticFeedbackType> values = [
     vibrate,
     lightImpact,
@@ -276,7 +281,7 @@ class HapticFeedbackType {
 
 class _WheelSliderState extends State<WheelSlider> {
   final FixedExtentScrollController _scrollController =
-      FixedExtentScrollController();
+  FixedExtentScrollController();
 
   Future<int> getItemIndex() async {
     for (int i = 0; i < widget.totalCount; i++) {
